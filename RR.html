@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Astronauts</title>
+  
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+  <style>
+    .card {
+      width: 300px; 
+      margin: 20px;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div>
+    <select id="agencyFilter">
+      <option value="all">All</option>
+      <option value="NASA">NASA</option>
+      <option value="ESA">ESA</option>  
+      <option value="JAXA">JAXA</option>
+    </select>
+  </div>
+  
+  <div id="astronauts"></div>
+
+  <script>
+    const astronauts = [];
+
+    async function getAstronauts() {
+      const response = await fetch('https://api.spacexdata.com/v4/crew');
+      const data = await response.json();
+
+      data.forEach(astronaut => {
+        astronauts.push({
+          name: astronaut.name,
+          agency: astronaut.agency,
+          image: astronaut.image,
+          wiki: astronaut.wikipedia
+        });
+      });
+      
+      displayAstronauts();
+    }
+
+    function displayAstronauts() {
+      let agencyFilter = document.getElementById('agencyFilter').value;
+      
+      let filteredAstronauts = astronauts;
+      
+      if (agencyFilter !== 'all') {
+        filteredAstronauts = astronauts.filter(a => a.agency === agencyFilter);  
+      }
+
+      let astronautsHTML = '';
+
+      filteredAstronauts.forEach(astronaut => {
+        astronautsHTML += `
+          <div class="card">
+            <img src="${astronaut.image}" class="card-img-top">
+            <div class="card-body">
+              <h5 class="card-title">${astronaut.name}</h5>
+              <p class="card-text">${astronaut.agency}</p>
+              <a href="${astronaut.wiki}" class="btn btn-primary">Wiki</a>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('astronauts').innerHTML = astronautsHTML;
+    }
+
+    getAstronauts();
+
+    document.getElementById('agencyFilter').addEventListener('change', displayAstronauts);
+  </script>
+
+</body>
+</html>
